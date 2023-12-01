@@ -3,7 +3,7 @@ import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { cartActions } from "./components/store/cartVisible";
+import { sendCartData,fetchCartData} from "./components/store/cartActions";
 import Notification from "./components/UI/Notification";
 import { Fragment } from "react";
 
@@ -17,50 +17,20 @@ function App() {
 
   const notification = useSelector((state) => state.cartVisible.notification);
 
-  useEffect(() => {
-    const sendCartData = async () => {
-      dispatch(
-        cartActions.showNotification({
-          status: "Pending",
-          title: "Sending...",
-          message: "Sending cart Data...",
-        })
-      );
-      const response = await fetch(
-        "https://expensetracker-2cf7d-default-rtdb.firebaseio.com/cart.json",
-        {
-          method: "PUT",
-          body: JSON.stringify(cart),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Sending request failed!");
-      }
+  useEffect(()=>{
+    dispatch(fetchCartData())
+  },[dispatch])
 
-      dispatch(
-        cartActions.showNotification({
-          status: "success",
-          title: "Successful...",
-          message: "Successfully Sent data.",
-        })
-      );
-    };
+  useEffect(() => {
+   
 
     if(isinitial){
       isinitial=false
       return;
       
     }
+    dispatch(sendCartData(cart))
 
-    sendCartData().catch((error) => {
-      dispatch(
-        cartActions.showNotification({
-          status: "error",
-          title: "Error...",
-          message: "Failed to Send Data",
-        })
-      );
-    });
   }, [cart, dispatch]);
   return (
     <Fragment>
